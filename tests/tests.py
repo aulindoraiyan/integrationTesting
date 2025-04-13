@@ -20,17 +20,67 @@ def test_button_increments_counter():
     # Assert that the counter has been incremented
     assert at.session_state.count == 2
 
-def test_button_decrements_counter():
-    # TODO test that the decrement button works
-    pass
+def test_button_decrements_counter(at):
+    at.run()
 
-def test_button_increments_counter_ten_x():
-    # TODO test that the increment button works in ten_x mode
-    pass
+    # First, increment twice so we can safely decrement
+    at.button[0].click()  # +1
+    at.button[0].click()  # +1
+    assert at.text[0].value == "Total count is 2"
 
-def test_button_decrements_counter_ten_x():
-    # TODO test that the decrement button works in ten_x mode
-    pass
+    # Click the decrement button
+    at.button[1].click()  # -1
+    assert at.text[0].value == "Total count is 1"
+
+    at.button[1].click()  # -1
+    assert at.text[0].value == "Total count is 0"
+
+    # Should not go below zero
+    at.button[1].click()  # -1
+    assert at.text[0].value == "Total count is 0"
+
+
+def test_button_increments_counter_ten_x(at):
+    at.run()
+
+    # Enable 10x mode
+    with at.expander("Options"):
+        at.checkbox[0].check()
+
+    assert at.button[0].label == "plus 10"
+
+    # Click increment
+    at.button[0].click()
+    assert at.text[0].value == "Total count is 10"
+
+    # Click again
+    at.button[0].click()
+    assert at.text[0].value == "Total count is 20"
+
+
+def test_button_decrements_counter_ten_x(at):
+    at.run()
+
+    # Enable 10x mode
+    with at.expander("Options"):
+        at.checkbox[0].check()
+
+    # Pre-increment to 20 so we can decrement
+    at.button[0].click()
+    at.button[0].click()
+    assert at.text[0].value == "Total count is 20"
+
+    # Click decrement
+    at.button[1].click()
+    assert at.text[0].value == "Total count is 10"
+
+    # Again
+    at.button[1].click()
+    assert at.text[0].value == "Total count is 0"
+
+    # Try to go below 0
+    at.button[1].click()
+    assert at.text[0].value == "Total count is 0"
 
 def test_output_text_correct():
     """Test that the text shows the correct value."""
